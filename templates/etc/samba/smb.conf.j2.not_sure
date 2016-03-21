@@ -1,0 +1,78 @@
+#======================= Global Settings =======================
+
+[global]
+   clustering = yes
+   idmap backend = tdb2
+   private dir = {{ ctdb_lock_folder }}
+   netbios name = {{ ctdb_samba_global_options.netbios_name }}
+   server string = {{ ctdb_samba_global_options.server_string }}
+{% if ctdb_samba_join_domain %}
+   security = ads
+   workgroup = {{ ctdb_samba_active_directory_info.workgroup }}
+   realm = {{ ctdb_samba_active_directory_info.realm }}
+{%   if ctdb_samba_active_directory_info.winbind_use_default_domain %}
+   winbind use default domain = yes
+{%   elif not ctdb_samba_active_directory_info.winbind_use_default_domain %}
+   winbind use default domain = no
+{%   endif %}
+{%   if ctdb_samba_active_directory_info.winbind_enum_users %}
+   winbind enum users = yes
+{%   elif not ctdb_samba_active_directory_info.winbind_enum_users %}
+   winbind enum users = no
+{%   endif %}
+{%   if ctdb_samba_active_directory_info.winbind_enum_groups %}
+   winbind enum groups = yes
+{%   elif not ctdb_samba_active_directory_info.winbind_enum_groups %}
+   winbind enum groups = no
+{%   endif %}
+   idmap config *:range = {{ ctdb_samba_active_directory_info.idmap_range }}
+   winbind cache time = {{ ctdb_samba_active_directory_info.winbind_cache_time }}
+   winbind refresh tickets = yes
+   winbind normalize names = yes
+   client ntlmv2 auth = yes
+   encrypt passwords = yes
+   client use spnego = yes
+   vfs objects = acl_xatrr
+   map acl inherit = yes
+   store dos attributes = yes
+#   winbind separator = +
+{% elif not ctdb_samba_join_domain %}
+   workgroup = {{ ctdb_samba_global_options.workgroup }}
+{% endif %}
+{% if ctdb_samba_global_options.wins_support %}
+   wins support = yes
+   wins server = {{ ctdb_samba_global_options.wins_server }}
+{% elif not ctdb_samba_global_options.wins_support %}
+   wins support = no
+{% endif %}
+{% if ctdb_samba_global_options.dns_proxy %}
+   dns proxy = yes
+{% elif not ctdb_samba_global_options.dns_proxy %}
+   dns proxy = no
+{% endif %}
+   log file = /var/log/samba/log.%m
+   max log size = {{ ctdb_samba_global_options.max_log_size }}
+   syslog = 0
+   panic action = /usr/share/samba/panic-action %d
+   server role = standalone server
+   passdb backend = tdbsam
+   obey pam restrictions = yes
+{% if ctdb_samba_global_options.unix_password_sync %}
+   unix password sync = yes
+{% elif not ctdb_samba_global_options.unix_password_sync %}
+   unix password sync = no
+{% endif %}
+   passwd program = /usr/bin/passwd %u
+   passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
+   pam password change = yes
+   map to guest = bad user
+   usershare allow guests = yes
+
+{% for item in ctdb_samba_shares %}
+[{{ item.name }}]
+   comment = {{ item.comment }}
+   path = {{ item.path }}
+   read only = {{ item.read_only|lower }}
+   guest ok = {{ item.guest_ok|lower }}
+
+{% endfor %}
