@@ -1,7 +1,17 @@
 ---
-- name: config_ctdb | ensuring {{ ctdb_lock_folder }} exists
+- name: config_ctdb | creating directories to share configs between nodes
   file:
-    path: "{{ ctdb_lock_folder }}"
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - '{{ ctdb_glusterfs_mount }}/etc/samba'
+
+- name: config_ctdb | ensuring {{ ctdb_lock_directory }} exists
+  file:
+    path: "{{ ctdb_lock_directory }}"
     state: directory
     owner: root
     group: root

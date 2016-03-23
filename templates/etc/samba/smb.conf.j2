@@ -1,26 +1,47 @@
 #
 #======================= Global Settings =======================
-
+{% if ctdb_samba_join_domain %}
 [global]
+#  client ntlmv2 auth = yes
+#  client use spnego = yes
   clustering = yes
   dns proxy = no
-  idmap backend = tdb2
+#  encrypt passwords = yes
+  idmap config * : backend = tdb2
+  idmap config * : range = 100000-299999
+  idmap config {{ ctdb_samba_active_directory_info.workgroup|upper }} : backend = rid
+  idmap config {{ ctdb_samba_active_directory_info.workgroup|upper }} : range = {{ ctdb_samba_active_directory_info.idmap_range }}
   log file = /var/log/samba/log.%m
-  map to guest = bad user
-  max log size = 1000
-  obey pam restrictions = yes
-  pam password change = yes
-  panic action = /usr/share/samba/panic-action %d
-  passdb backend = tdbsam
-  passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
-  passwd program = /usr/bin/passwd %u
-  private dir = {{ ctdb_lock_folder }}
+#  map to guest = bad user
+#  max log size = 1000
+  netbios name = {{ ctdb_samba_active_directory_info.netbios_name }}
+#  obey pam restrictions = yes
+#  pam password change = yes
+#  panic action = /usr/share/samba/panic-action %d
+#  passdb backend = tdbsam
+#  passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
+#  passwd program = /usr/bin/passwd %u
+  private dir = {{ ctdb_lock_directory }}
+  realm = {{ ctdb_samba_active_directory_info.realm|upper }}
+  restrict anonymous = 2
+  security = ads
   server role = standalone server
   server string = %h server (Samba, Ubuntu)
   syslog = 0
+  template homedir = /home/%D/%U
+  template shell = /bin/bash
   unix password sync = yes
   usershare allow guests = yes
-  workgroup = {{ ctdb_samba_global_options.workgroup }}
+  winbind enum groups = {{ ctdb_samba_active_directory_info.winbind_enum_groups }}
+  winbind enum users = {{ ctdb_samba_active_directory_info.winbind_enum_users }}
+  winbind use default domain = yes
+  workgroup = {{ ctdb_samba_active_directory_info.workgroup|upper }}
+
+# Below added from https://wiki.samba.org/index.php/Shares_with_Windows_ACLs
+  ea support = yes
+  map acl inherit = yes
+  store dos attributes = yes
+  vfs objects = acl_xattr
 
 ## Shares ##
 [printers]
@@ -41,11 +62,12 @@
   read only = yes
   guest ok = no
 
-{% for item in ctdb_samba_shares %}
+{%   for item in ctdb_samba_shares %}
 [{{ item.name }}]
   comment = {{ item.comment }}
   path = {{ item.path }}
   read only = {{ item.read_only|lower }}
-  guest ok = {{ item.guest_ok|lower }}
+  browseable = {{ item.browseable|lower }}
 
-{% endfor %}
+{%   endfor %}
+{% endif %}

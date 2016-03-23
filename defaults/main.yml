@@ -1,12 +1,13 @@
 ---
 # defaults file for ansible-ctdb
 config_ctdb: false
+ctdb_backup_configs: true
 ctdb_glusterfs_mount: '/mnt/ctdb'  #NEEDS TO BE A GLUSTERFS MOUNT....or LOCKING FAILS
-ctdb_glusterfs_client_mount: '/data/shares'
+ctdb_glusterfs_client_mount: '/data/shares'  #Defines root mount for creating shares
 ctdb_install_samba: true  #define if samba is to be installed using this role or set to false if you use another ansible role to install samba
 ctdb_install_winbind: true
-ctdb_lock_folder: '{{ ctdb_glusterfs_mount }}/lock'
-ctdb_lockfile: '{{ ctdb_lock_folder }}/lockfile'
+ctdb_lock_directory: '{{ ctdb_glusterfs_mount }}/lock'
+ctdb_lockfile: '{{ ctdb_lock_directory }}/lockfile'
 ctdb_manages_nfs: false
 ctdb_manages_samba: true
 ctdb_manages_winbind: false  #enable if using Samba in AD or LDAP
@@ -25,17 +26,24 @@ ctdb_public_addresses:
 ctdb_public_addresses_file: '/etc/ctdb/public_addresses'
 ctdb_public_network: 192.168.202.0/24
 ctdb_samba_active_directory_info:
-  idmap_range: '1000-90000'
+  domain_join_user: 'ansible'
+  domain_join_password: 'P@55w0rd'
+  idmap_gid: '10000-20000'
+  idmap_range: '10000-99999'
+  idmap_uid: '10000-20000'
+#  idmap_range: '1000-90000'  #New way...
   kdc:
     - 'dc01.{{ pri_domain_name }}'
     - 'dc02.{{ pri_domain_name }}'
+  netbios_name: 'SMBCLUSTER'
   preferred_master: 'no'
-  realm: '{{ pri_domain_name|upper }}'
-  winbind_use_default_domain: true
-  winbind_enum_users: false
-  winbind_enum_groups: false
+  realm: '{{ pri_domain_name }}'
+#  winbind_use_default_domain: true
+  winbind_enum_users: 'yes'  #if set to no then getent passwd will not output domain users
+  winbind_enum_groups: 'yes'  #if set to no then getent group will not output domain groups
   winbind_cache_time: 900
   workgroup: 'EVERYTHING'
+ctdb_samba_config: '{{ ctdb_glusterfs_mount }}/etc/samba/smb.conf'  #defines shared smb.conf between nodes...stored on GlusterFS mounts
 ctdb_samba_ctdbd_socket_file: '/var/lib/run/ctdb/ctdbd.socket'
 ctdb_samba_global_options:
   dns_proxy: false
@@ -47,11 +55,30 @@ ctdb_samba_global_options:
   wins_support: false
   workgroup: 'WORKGROUP'
 ctdb_samba_join_domain: false
-ctdb_samba_shares:
-  - name: 'shares'
-    comment: 'Gluster and CTDB based share'
-    path: '{{ ctdb_glusterfs_client_mount }}'
+ctdb_samba_master_node: 'node1'  #only used to join domain..
+ctdb_samba_shares:  #only creating base shares directory...manage from Windows to define add's ACL's
+  - name: 'public'
+    browseable: 'yes'
+    comment: 'Public Share(Open)'
+    directory_perms: 'u=rwx,g=rwx,o='
+    group: 'Domain Users'
+    owner: 'Domain Admins'
+    path: '{{ ctdb_samba_shares_root_dir }}/public'
     read_only: 'no'
-    guest_ok: 'yes'
+    recurse_directory_perms: false
+  - name: 'users'
+    browseable: 'yes'
+    comment: 'Public Share(Open)'
+    directory_perms: 'u=rwx,g=rwx,o='
+    group: 'Domain Users'
+    owner: 'Domain Admins'
+    path: '{{ ctdb_samba_shares_root_dir }}/users'
+    read_only: 'no'
+    recurse_directory_perms: false
+ctdb_samba_shares_root_dir: '{{ ctdb_glusterfs_client_mount }}'  #defines root directory where shares will be created
+ctdb_samba_shares_root_perms:
+  owner: 'root'
+  group: 'root'
+  directory_perms: 'u=rwx,g=rx,o=rx'
 ctdb_ulimit: 10000
 pri_domain_name: 'everythingshouldbevirtual.local'
