@@ -58,6 +58,10 @@ ctdb_samba_join_domain: false
 ctdb_samba_master_node: 'node1'  #only used to join domain..
 ctdb_samba_shares:  #only creating base shares directory...manage from Windows to define add's ACL's
   - name: 'public'
+    acl_entity: 'Domain Admins'
+    acl_etype: 'group'
+    acl_perms: 'rwx'
+    acl_recurse: false
     browseable: 'yes'
     comment: 'Public Share(Open)'
     directory_perms: 'u=rwx,g=rwx,o='
@@ -67,6 +71,10 @@ ctdb_samba_shares:  #only creating base shares directory...manage from Windows t
     read_only: 'no'
     recurse_directory_perms: false
   - name: 'users'
+    acl_entity: 'Domain Admins'
+    acl_etype: 'group'
+    acl_perms: 'rwx'
+    acl_recurse: false
     browseable: 'yes'
     comment: 'Public Share(Open)'
     directory_perms: 'u=rwx,g=rwx,o='

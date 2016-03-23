@@ -19,11 +19,11 @@
 - name: manage_share_folders | setting default ACL's
   acl:
     path: "{{ item.path }}"
-    entity: "{{ item.group }}"
-    etype: "group"
-    permissions: "rwx"
+    entity: "{{ item.acl_entity }}"
+    etype: "{{ item.acl_etype }}"
+    permissions: "{{ item.acl_perms }}"
     default: yes
-    recursive: "{{ item.recurse_directory_perms|default (omit) }}"
+    recursive: "{{ item.acl_recurse|default (omit) }}"
     state: present
   with_items: '{{ ctdb_samba_shares }}'
   when: ctdb_samba_join_domain
