@@ -1,0 +1,34 @@
+---
+- hosts: all
+  become: true
+  vars:
+  roles:
+    - role: ansible-change-hostname
+  tasks:
+
+- hosts: all
+  become: true
+  vars:
+  roles:
+    - role: ansible-etc-hosts
+    - role: ansible-config-interfaces
+    - role: ansible-network-tweaks
+    - role: ansible-ntp
+
+- hosts: iscsi-servers
+  become: true
+  vars:
+  roles:
+    - ansible-zfs
+  tasks:
+
+- hosts: ctdb-servers
+  become: true
+  vars:
+    - manage_glusterfs: true  #defines if role should be ran after initial setup
+  roles:
+    - role: ansible-open-iscsi
+    - role: ansible-glusterfs
+      when: manage_glusterfs
+    - role: ansible-ctdb
+  tasks:
