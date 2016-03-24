@@ -18,12 +18,14 @@
 
 - name: manage_share_folders | setting default ACL's
   acl:
-    path: "{{ item.path }}"
-    entity: "{{ item.acl_entity }}"
-    etype: "{{ item.acl_etype }}"
-    permissions: "{{ item.acl_perms }}"
-    default: yes
-    recursive: "{{ item.acl_recurse|default (omit) }}"
+    path: "{{ item.0.path }}"
+    entity: "{{ item.1.entity }}"
+    etype: "{{ item.1.etype }}"
+    permissions: "{{ item.1.perms }}"
+    default: "{{ item.1.default }}"
+    recursive: "{{ item.1.recurse }}"
     state: present
-  with_items: '{{ ctdb_samba_shares }}'
+  with_subelements:
+    - '{{ ctdb_samba_shares }}'
+    - acls
   when: ctdb_samba_join_domain

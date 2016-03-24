@@ -17,16 +17,16 @@
     - restart ctdb
   when: ansible_distribution == "RedHat"
 
-- name: config_samba | checking if /etc/samba/smb.conf is a symlink
-  stat:
-    path: "/etc/samba/smb.conf"
-  register: smb_symlink
+#- name: config_samba | checking if /etc/samba/smb.conf is a symlink
+#  stat:
+#    path: "/etc/samba/smb.conf"
+#  register: smb_symlink
 
-- name: config_samba | removing /etc/samba/smb.conf if a symlink
-  file:
-    path: "/etc/samba/smb.conf"
-    state: absent
-  when: smb_symlink.stat.islnk
+#- name: config_samba | removing /etc/samba/smb.conf if a symlink
+#  file:
+#    path: "/etc/samba/smb.conf"
+#    state: absent
+#  when: smb_symlink.stat.islnk
 
 - name: config_samba | configuring samba {{ ctdb_samba_config }}
   template:
@@ -37,7 +37,8 @@
     mode: 0644
     backup: "{{ ctdb_backup_configs }}"
   notify:
-    - restart ctdb
+#    - restart ctdb
+    - reload samba
     
 #- name: config_samba | creating samba link /etc/samba/smb.conf -> {{ ctdb_samba_config }}
 #  file:

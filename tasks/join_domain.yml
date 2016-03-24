@@ -13,7 +13,7 @@
 
 - name: join_domain | waiting for ctdb to restart
   wait_for:
-    delay: 10
+    delay: 60  #we wait enough time for ctdb to startup samba services in order to join domain
     port: 445
   when: ctdb_restarted.changed
 
@@ -33,4 +33,16 @@
     owner: root
     group: root
     mode: 0644
+  when: domain_joined.changed
+
+- name: join_domain | restarting ctdb #we do this again after joining the domain in order to propogate permissions
+  service:
+    name: "ctdb"
+    state: restarted
+  when: domain_joined.changed
+
+- name: join_domain | waiting for ctdb to restart
+  wait_for:
+    delay: 60  #we wait enough time for ctdb to startup samba services in order to propogate domain
+    port: 445
   when: domain_joined.changed

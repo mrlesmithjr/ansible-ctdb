@@ -5,7 +5,7 @@
 #  client ntlmv2 auth = yes
 #  client use spnego = yes
   clustering = yes
-  dns proxy = no
+  dns proxy = no  #Default is yes
 #  encrypt passwords = yes
   idmap config * : backend = tdb2
   idmap config * : range = 100000-299999
@@ -27,6 +27,7 @@
   security = ads
   server role = standalone server
   server string = %h server (Samba, Ubuntu)
+  strict locking = no
   syslog = 0
   template homedir = /home/%D/%U
   template shell = /bin/bash

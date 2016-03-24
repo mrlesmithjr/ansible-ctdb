@@ -53,29 +53,68 @@ ctdb_samba_join_domain: false
 ctdb_samba_master_node: 'node1'  #only used to join domain..
 ctdb_samba_shares:  #only creating base shares directory...manage from Windows to define add's ACL's
   - name: 'public'
-    acl_entity: 'Domain Admins'
-    acl_etype: 'group'
-    acl_perms: 'rwx'
-    acl_recurse: false
+    acls:
+      - etype: 'group'
+        entity: ''
+        perms: 'rx'
+        recurse: false
+        default: true
+      - etype: 'group'
+        entity: 'Domain Admins'
+        perms: 'rwx'
+        recurse: false
+        default: false
+      - etype: 'group'
+        entity: 'Domain Admins'
+        perms: 'rwx'
+        recurse: false
+        default: true
+      - etype: 'group'
+        entity: 'Domain Users'
+        perms: 'rwx'
+        recurse: false
+        default: false
+      - etype: 'group'
+        entity: 'Domain Users'
+        perms: 'rwx'
+        recurse: false
+        default: true
+      - etype: 'user'
+        entity: 'Domain Admins'
+        perms: 'rwx'
+        recurse: false
+        default: false
+      - etype: 'user'
+        entity: 'Domain Admins'
+        perms: 'rwx'
+        recurse: false
+        default: true
+      - etype: 'user'
+        entity: 'Domain Users'
+        perms: 'rwx'
+        recurse: false
+        default: false
+      - etype: 'user'
+        entity: 'Domain Users'
+        perms: 'rwx'
+        recurse: false
+        default: true
+      - etype: 'user'
+        entity: 'root'
+        perms: 'rwx'
+        recurse: false
+        default: false
+      - etype: 'user'
+        entity: 'root'
+        perms: 'rwx'
+        recurse: false
+        default: true
     browseable: 'yes'
     comment: 'Public Share(Open)'
     directory_perms: 'u=rwx,g=rwx,o='
-    group: 'Domain Users'
-    owner: 'Domain Admins'
+    group: 'Domain Admins'
+    owner: 'root'
     path: '{{ ctdb_samba_shares_root_dir }}/public'
-    read_only: 'no'
-    recurse_directory_perms: false
-  - name: 'users'
-    acl_entity: 'Domain Admins'
-    acl_etype: 'group'
-    acl_perms: 'rwx'
-    acl_recurse: false
-    browseable: 'yes'
-    comment: 'Public Share(Open)'
-    directory_perms: 'u=rwx,g=rwx,o='
-    group: 'Domain Users'
-    owner: 'Domain Admins'
-    path: '{{ ctdb_samba_shares_root_dir }}/users'
     read_only: 'no'
     recurse_directory_perms: false
 ctdb_samba_shares_root_dir: '{{ ctdb_glusterfs_client_mount }}'  #defines root directory where shares will be created
