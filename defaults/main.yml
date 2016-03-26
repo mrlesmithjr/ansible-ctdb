@@ -33,22 +33,29 @@ ctdb_samba_active_directory_info:
   netbios_name: 'SMBCLUSTER'
   preferred_master: 'no'
   realm: '{{ pri_domain_name }}'
-#  winbind_use_default_domain: true
   winbind_enum_users: 'yes'  #if set to no then getent passwd will not output domain users
   winbind_enum_groups: 'yes'  #if set to no then getent group will not output domain groups
-  winbind_cache_time: 900
+  winbind_cache_time: '900'
+  winbind_use_default_domain: 'yes'
   workgroup: 'EXAMPLE'
 ctdb_samba_config: '{{ ctdb_glusterfs_mount }}/etc/samba/smb.conf'  #defines shared smb.conf between nodes...stored on GlusterFS mounts
 ctdb_samba_ctdbd_socket_file: '/var/lib/run/ctdb/ctdbd.socket'
 ctdb_samba_global_options:
-  dns_proxy: false
-  max_log_size: 1000
+  clustering: 'yes'  #defines if CTDB clustering is used...(yes|no)
+  dns_proxy: 'no'
+  deadtime: '0'  #defines idle disconnects..(default 0)...A deadtime of zero indicates that no auto-disconnection should be performed
+  idmap_range: '100000-299999'
+  max_log_size: '1000'
   netbios_name: 'SMBCLUSTER'
+  restrict_anonymous: '2'
   server_string: '%h server (Samba, Ubuntu)'  #MAY NEED TO SET THIS TO A VAR SO ALL NODES SHARE THE SAME NETBIOS NAME
-  unix_password_sync: true
+  strict_locking: 'no'  #set to no if sharing same shares via NFS/CIFS..otherwise set to yes
+  unix_password_sync: 'yes'
+  usershare_allow_guests: 'no'
   wins_server: []
   wins_support: false
   workgroup: 'WORKGROUP'
+ctdb_samba_restrict_access_to_public_addresses_only: false  #defines if samba should only allow connections via public address...DOES NOT WORK YET!!!
 ctdb_samba_join_domain: false
 ctdb_samba_master_node: 'node1'  #only used to join domain..
 ctdb_samba_shares:  #only creating base shares directory...manage from Windows to define add's ACL's
