@@ -1,7 +1,9 @@
 > [!CAUTION]
 > **This project is archived and no longer maintained.**
 > Archived: 2026-03-26
-> Reason: Low community usage; no longer maintainedRole Name
+> Reason: Low community usage; no longer maintained
+
+Role Name
 =========
 
 An Ansible role to install and configure CTDB (https://ctdb.samba.org/)
